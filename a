@@ -1,0 +1,10 @@
+        const imagens = [
+            "img1.jpg",
+            "https://preview.redd.it/dooinqscs2551.jpg?auto=webp&s=551cab0b2f42ee700469d1599402bc564843e733",
+            "https://clubepaineiras.org.br/wp-content/uploads/2022/05/jogadores.jpg",
+            "https://img2.lovecell.com.br/ca016a61d3bc8020e853ea6a4fe7f5b4a10cfc12a12afd763d161cd4ce19f69b.webp",
+            "img2.jpg",
+        ];
+
+
+        <h2>Arthur... futzin na sua casa nesse fim de semana?</h2>
