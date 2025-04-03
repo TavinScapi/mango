@@ -1,118 +1,89 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Botão Fugitivo</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-            text-align: center;
-            position: relative;
-        }
-
-        .container {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100vw;
-            height: 50vh;
-        }
-
-        button {
-            font-size: 20px;
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
-            position: absolute;
-        }
-
-        #nao {
-            background-color: red;
-            color: white;
-            border: none;
-        }
-
-        #sim {
-            background-color: green;
-            color: white;
-            border: none;
-        }
-
-        .imagem-movel {
-            position: absolute;
-            width: 100px;
-            height: auto;
-        }
-    </style>
+    <title>Meu Perfil Spotify</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body>
-    <h2>Arthur... futzin na sua casa nesse fim de semana?</h2>
     <div class="container">
-        <button id="sim" onclick="window.location.href='https://www.youtube.com/watch?v=goSfCFehks0'">Sim</button>
-        <button id="nao">Não</button>
+        <header>
+            <h1>Spotify Profile</h1>
+            <div id="auth-section">
+                <button id="login-btn" class="btn-spotify">
+                    <i class="fab fa-spotify"></i> LOGIN COM SPOTIFY
+                </button>
+                <div id="user-profile" class="hidden">
+                    <img id="user-avatar" src="" alt="User">
+                    <span id="user-name"></span>
+                    <button id="logout-btn" class="btn-logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content" class="hidden">
+            <div class="profile-header">
+                <div class="profile-image-container">
+                    <img id="profile-image" src="" alt="Profile Image">
+                </div>
+                <div class="profile-info">
+                    <h2 id="profile-name"></h2>
+                    <div class="profile-stats">
+                        <div class="stat">
+                            <span id="followers-count">0</span>
+                            <span>SEGUIDORES</span>
+                        </div>
+                        <div class="stat">
+                            <span id="following-count">0</span>
+                            <span>SEGUINDO</span>
+                        </div>
+                        <div class="stat">
+                            <span id="playlists-count">0</span>
+                            <span>PLAYLISTS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="top-tracks">TOP MÚSICAS</button>
+                <button class="tab-btn" data-tab="top-artists">TOP ARTISTAS</button>
+                <button class="tab-btn" data-tab="recently-played">TOCADAS RECENTEMENTE</button>
+            </div>
+
+            <div class="tab-content active" id="top-tracks">
+                <div class="time-range">
+                    <button class="time-btn active" data-range="short_term">ÚLTIMAS 4 SEMANAS</button>
+                    <button class="time-btn" data-range="medium_term">ÚLTIMOS 6 MESES</button>
+                    <button class="time-btn" data-range="long_term">TODOS OS TEMPOS</button>
+                </div>
+                <div class="items-grid" id="top-tracks-grid"></div>
+            </div>
+
+            <div class="tab-content" id="top-artists">
+                <div class="time-range">
+                    <button class="time-btn active" data-range="short_term">ÚLTIMAS 4 SEMANAS</button>
+                    <button class="time-btn" data-range="medium_term">ÚLTIMOS 6 MESES</button>
+                    <button class="time-btn" data-range="long_term">TODOS OS TEMPOS</button>
+                </div>
+                <div class="items-grid" id="top-artists-grid"></div>
+            </div>
+
+            <div class="tab-content" id="recently-played">
+                <div class="items-grid" id="recently-played-grid"></div>
+            </div>
+        </main>
+
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <p>Carregando seus dados do Spotify...</p>
+        </div>
     </div>
 
-    <script>
-        const botaoNao = document.getElementById("nao");
-        const container = document.querySelector(".container");
-
-        function moverBotao() {
-            const larguraContainer = container.clientWidth - botaoNao.offsetWidth;
-            const alturaContainer = container.clientHeight - botaoNao.offsetHeight;
-
-            const novaPosicaoX = Math.random() * larguraContainer;
-            const novaPosicaoY = Math.random() * alturaContainer;
-
-            botaoNao.style.left = `${novaPosicaoX}px`;
-            botaoNao.style.top = `${novaPosicaoY}px`;
-        }
-
-        botaoNao.addEventListener("mouseover", moverBotao);
-        botaoNao.addEventListener("touchstart", moverBotao);
-
-        const imagens = [
-            "img1.jpg",
-            "https://preview.redd.it/dooinqscs2551.jpg?auto=webp&s=551cab0b2f42ee700469d1599402bc564843e733",
-            "https://clubepaineiras.org.br/wp-content/uploads/2022/05/jogadores.jpg",
-            "https://img2.lovecell.com.br/ca016a61d3bc8020e853ea6a4fe7f5b4a10cfc12a12afd763d161cd4ce19f69b.webp",
-            "img2.jpg",
-        ];
-
-        function criarImagem() {
-            const img = document.createElement("img");
-            img.src = imagens[Math.floor(Math.random() * imagens.length)];
-            img.classList.add("imagem-movel");
-            document.body.appendChild(img);
-
-            function moverImagem() {
-                const larguraJanela = window.innerWidth - img.width;
-                const alturaJanela = window.innerHeight - img.height;
-
-                const novaPosicaoX = Math.random() * larguraJanela;
-                const novaPosicaoY = Math.random() * alturaJanela;
-
-                img.style.left = `${novaPosicaoX}px`;
-                img.style.top = `${novaPosicaoY}px`;
-            }
-
-            setInterval(moverImagem, 2000);
-            moverImagem();
-        }
-
-        for (let i = 0; i < 5; i++) {
-            criarImagem();
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
-
 </html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Profile</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Spotify Profile</h1>
+            <div id="auth-section">
+                <button id="login-btn" class="btn-spotify">
+                    <i class="fab fa-spotify"></i> LOGIN WITH SPOTIFY
+                </button>
+                <div id="user-profile" class="hidden">
+                    <img id="user-avatar" src="" alt="User Avatar">
+                    <span id="user-name"></span>
+                    <button id="logout-btn" class="btn-logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main id="main-content" class="hidden">
+            <div class="profile-header">
+                <div class="profile-image-container">
+                    <img id="profile-image" src="" alt="Profile Image">
+                </div>
+                <div class="profile-info">
+                    <h2 id="profile-name"></h2>
+                    <div class="profile-stats">
+                        <div class="stat">
+                            <span id="followers-count"></span>
+                            <span>FOLLOWERS</span>
+                        </div>
+                        <div class="stat">
+                            <span id="following-count"></span>
+                            <span>FOLLOWING</span>
+                        </div>
+                        <div class="stat">
+                            <span id="playlists-count"></span>
+                            <span>PLAYLISTS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="top-tracks">TOP TRACKS</button>
+                <button class="tab-btn" data-tab="top-artists">TOP ARTISTS</button>
+                <button class="tab-btn" data-tab="recently-played">RECENTLY PLAYED</button>
+                <button class="tab-btn" data-tab="playlists">PLAYLISTS</button>
+            </div>
+
+            <div class="tab-content active" id="top-tracks">
+                <div class="time-range">
+                    <button class="time-btn active" data-range="short_term">LAST 4 WEEKS</button>
+                    <button class="time-btn" data-range="medium_term">LAST 6 MONTHS</button>
+                    <button class="time-btn" data-range="long_term">ALL TIME</button>
+                </div>
+                <div class="items-grid" id="top-tracks-grid"></div>
+            </div>
+
+            <div class="tab-content" id="top-artists">
+                <div class="time-range">
+                    <button class="time-btn active" data-range="short_term">LAST 4 WEEKS</button>
+                    <button class="time-btn" data-range="medium_term">LAST 6 MONTHS</button>
+                    <button class="time-btn" data-range="long_term">ALL TIME</button>
+                </div>
+                <div class="items-grid" id="top-artists-grid"></div>
+            </div>
+
+            <div class="tab-content" id="recently-played">
+                <div class="items-grid" id="recently-played-grid"></div>
+            </div>
+
+            <div class="tab-content" id="playlists">
+                <div class="items-grid" id="playlists-grid"></div>
+            </div>
+        </main>
+
+        <div id="loading" class="hidden">
+            <div class="spinner"></div>
+            <p>Loading your Spotify data...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
