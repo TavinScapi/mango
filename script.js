@@ -1,8 +1,6 @@
 // Configurações do Spotify
-const CLIENT_ID = '1ca02f4c12f247de9ef1552f920e191e'; // Substitua pelo seu Client ID do Spotify Dashboard
-const REDIRECT_URI = window.location.href.includes('localhost') 
-    ? 'http://localhost:8000' 
-    : 'http://127.0.0.1:5500'; // Atualize com sua URL
+const CLIENT_ID = '1ca02f4c12f247de9ef1552f920e191e'; // Seu Client ID
+const REDIRECT_URI = 'http://127.0.0.1:5500'; // Única URL de redirecionamento
 const SCOPE = 'user-read-private user-read-email user-top-read user-follow-read user-read-recently-played';
 
 // Elementos DOM
@@ -63,23 +61,23 @@ async function loadUserData() {
     loginBtn.classList.add('hidden');
     loading.classList.remove('hidden');
     userProfile.classList.remove('hidden');
-    
+
     try {
         const accessToken = localStorage.getItem('spotify_access_token');
-        
+
         // Carregar dados do usuário
         const userData = await fetchSpotifyData('https://api.spotify.com/v1/me', accessToken);
         displayUserProfile(userData);
-        
+
         // Carregar estatísticas
         await loadUserStats(accessToken, userData.id);
-        
+
         // Carregar dados iniciais
         loadTopTracks('short_term', accessToken);
-        
+
         // Configurar tabs
         setupTabs();
-        
+
         loading.classList.add('hidden');
         mainContent.classList.remove('hidden');
     } catch (error) {
@@ -97,11 +95,11 @@ async function fetchSpotifyData(url, accessToken) {
             'Authorization': `Bearer ${accessToken}`
         }
     });
-    
+
     if (!response.ok) {
         throw await response.json();
     }
-    
+
     return await response.json();
 }
 
@@ -117,11 +115,11 @@ async function loadUserStats(accessToken, userId) {
         // Seguidores
         const userData = await fetchSpotifyData('https://api.spotify.com/v1/me', accessToken);
         document.getElementById('followers-count').textContent = userData.followers?.total || 0;
-        
+
         // Artistas seguidos
         const followingData = await fetchSpotifyData('https://api.spotify.com/v1/me/following?type=artist&limit=1', accessToken);
         document.getElementById('following-count').textContent = followingData.artists?.total || 0;
-        
+
         // Playlists (aproximação)
         const playlistsData = await fetchSpotifyData(`https://api.spotify.com/v1/users/${userId}/playlists?limit=1`, accessToken);
         document.getElementById('playlists-count').textContent = playlistsData.total || 0;
@@ -133,23 +131,23 @@ async function loadUserStats(accessToken, userId) {
 function setupTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
-    
+
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             // Remover active de todos
             tabBtns.forEach(b => b.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
-            
+
             // Adicionar active ao clicado
             btn.classList.add('active');
             const tabId = btn.getAttribute('data-tab');
             document.getElementById(tabId).classList.add('active');
-            
+
             // Carregar conteúdo da tab se necessário
             const accessToken = localStorage.getItem('spotify_access_token');
             if (!accessToken) return;
-            
-            switch(tabId) {
+
+            switch (tabId) {
                 case 'top-tracks':
                     const activeTimeRange = document.querySelector('#top-tracks .time-btn.active').getAttribute('data-range');
                     loadTopTracks(activeTimeRange, accessToken);
@@ -164,23 +162,23 @@ function setupTabs() {
             }
         });
     });
-    
+
     // Configurar botões de tempo
     const timeBtns = document.querySelectorAll('.time-btn');
     timeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             // Remover active de todos no mesmo container
             btn.parentElement.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-            
+
             // Adicionar active ao clicado
             btn.classList.add('active');
             const range = btn.getAttribute('data-range');
             const accessToken = localStorage.getItem('spotify_access_token');
             if (!accessToken) return;
-            
+
             // Determinar qual tab está ativa
             const activeTab = document.querySelector('.tab-content.active').id;
-            
+
             if (activeTab === 'top-tracks') {
                 loadTopTracks(range, accessToken);
             } else if (activeTab === 'top-artists') {
@@ -205,7 +203,7 @@ async function loadTopTracks(timeRange, accessToken) {
 function displayTopTracks(tracks) {
     const grid = document.getElementById('top-tracks-grid');
     grid.innerHTML = '';
-    
+
     tracks.forEach(track => {
         const card = document.createElement('div');
         card.className = 'item-card';
@@ -236,7 +234,7 @@ async function loadTopArtists(timeRange, accessToken) {
 function displayTopArtists(artists) {
     const grid = document.getElementById('top-artists-grid');
     grid.innerHTML = '';
-    
+
     artists.forEach(artist => {
         const card = document.createElement('div');
         card.className = 'item-card';
@@ -267,7 +265,7 @@ async function loadRecentlyPlayed(accessToken) {
 function displayRecentlyPlayed(tracks) {
     const grid = document.getElementById('recently-played-grid');
     grid.innerHTML = '';
-    
+
     tracks.forEach(item => {
         const track = item.track;
         const card = document.createElement('div');
@@ -283,3 +281,112 @@ function displayRecentlyPlayed(tracks) {
         grid.appendChild(card);
     });
 }
+
+
+
+// Configuração do player de áudio
+
+// Variáveis globais
+let currentTrack = null;
+
+// Elementos DOM
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+const playerBar = document.getElementById('player-bar');
+const audioPlayer = document.getElementById('audio-player');
+const nowPlayingCover = document.getElementById('now-playing-cover');
+const nowPlayingTitle = document.getElementById('now-playing-title');
+const nowPlayingArtist = document.getElementById('now-playing-artist');
+
+// Evento de pesquisa
+searchInput.addEventListener('input', debounce(handleSearch, 500));
+
+// Função de pesquisa
+async function handleSearch() {
+    const query = searchInput.value.trim();
+    if (query.length < 3) {
+        searchResults.classList.add('hidden');
+        return;
+    }
+
+    try {
+        const accessToken = localStorage.getItem('spotify_access_token');
+        if (!accessToken) return;
+
+        const response = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+
+        if (!response.ok) throw new Error('Search failed');
+
+        const data = await response.json();
+        displaySearchResults(data.tracks.items);
+    } catch (error) {
+        console.error('Search error:', error);
+        searchResults.innerHTML = '<div class="search-result-item">Erro ao buscar músicas</div>';
+        searchResults.classList.remove('hidden');
+    }
+}
+
+// Exibir resultados da pesquisa
+function displaySearchResults(tracks) {
+    if (!tracks || tracks.length === 0) {
+        searchResults.innerHTML = '<div class="search-result-item">Nenhum resultado encontrado</div>';
+        searchResults.classList.remove('hidden');
+        return;
+    }
+
+    searchResults.innerHTML = '';
+    tracks.forEach(track => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML = `
+            <img src="${track.album.images[0].url}" alt="${track.name}">
+            <div class="search-result-info">
+                <h4>${track.name}</h4>
+                <p>${track.artists.map(artist => artist.name).join(', ')} • ${track.album.name}</p>
+            </div>
+        `;
+        item.addEventListener('click', () => playTrack(track));
+        searchResults.appendChild(item);
+    });
+    searchResults.classList.remove('hidden');
+}
+
+// Função para reproduzir música
+function playTrack(track) {
+    currentTrack = track;
+    nowPlayingCover.src = track.album.images[0].url;
+    nowPlayingTitle.textContent = track.name;
+    nowPlayingArtist.textContent = track.artists.map(artist => artist.name).join(', ');
+
+    // Usando a prévia da música (30 segundos)
+    audioPlayer.src = track.preview_url || '';
+
+    playerBar.classList.remove('hidden');
+    searchResults.classList.add('hidden');
+    searchInput.value = '';
+
+    if (track.preview_url) {
+        audioPlayer.play().catch(e => console.log('Auto-play prevented:', e));
+    }
+}
+
+// Debounce para evitar muitas requisições
+function debounce(func, wait) {
+    let timeout;
+    return function () {
+        const context = this, args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+
+// Fechar resultados ao clicar fora
+document.addEventListener('click', (e) => {
+    if (!searchResults.contains(e.target)) {
+        searchResults.classList.add('hidden');
+    }
+});
