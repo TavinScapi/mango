@@ -1,6 +1,8 @@
 // Configurações do Spotify
 const CLIENT_ID = '1ca02f4c12f247de9ef1552f920e191e'; // Seu Client ID
-const REDIRECT_URI = 'http://127.0.0.1:5500'; // Única URL de redirecionamento
+const REDIRECT_URI = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+    ? 'http://127.0.0.1:5500'  // Ambiente local  
+    : 'https://tavinscapi.github.io/mango/'; // GitHub Pages
 const SCOPE = 'user-read-private user-read-email user-top-read user-follow-read user-read-recently-played';
 
 // Elementos DOM
